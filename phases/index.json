@@ -1,0 +1,13 @@
+{
+  "project": "data-platform",
+  "description": "실시간 데이터 수집, 처리, 분석을 위한 확장 가능한 데이터 플랫폼",
+  "phases": [
+    {
+      "dir": "0-mvp",
+      "name": "MVP 구현",
+      "description": "핵심 기능 구현 (데이터 수집, 처리, 저장, API)",
+      "status": "pending",
+      "priority": 1
+    }
+  ]
+}

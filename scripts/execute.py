@@ -178,11 +178,11 @@ class StepExecutor:
         sections = []
         roo_rules = ROOT / "roo_rules.md"
         if roo_rules.exists():
-            sections.append(f"## 프로젝트 규칙 (roo_rules.md)\n\n{roo_rules.read_text()}")
+            sections.append(f"## 프로젝트 규칙 (roo_rules.md)\n\n{roo_rules.read_text(encoding='utf-8')}")
         docs_dir = ROOT / "docs"
         if docs_dir.is_dir():
             for doc in sorted(docs_dir.glob("*.md")):
-                sections.append(f"## {doc.stem}\n\n{doc.read_text()}")
+                sections.append(f"## {doc.stem}\n\n{doc.read_text(encoding='utf-8')}")
         return "\n\n---\n\n".join(sections) if sections else ""
 
     @staticmethod
@@ -234,14 +234,14 @@ class StepExecutor:
             print(f"  ERROR: {step_file} not found")
             sys.exit(1)
 
-        prompt = preamble + step_file.read_text()
+        prompt = preamble + step_file.read_text(encoding="utf-8")
         
         # Bob (Roo-Cline)은 대화형 에이전트이므로 직접 CLI 호출 대신
         # 프롬프트 파일을 생성하고 사용자가 Bob에게 전달하도록 안내
         prompt_file = self._phase_dir / f"step{step_num}-prompt.md"
         prompt_file.write_text(prompt, encoding="utf-8")
         
-        print(f"\n  ⚠ Bob 실행 필요:")
+        print(f"\n  [!] Bob 실행 필요:")
         print(f"     1. VSCode에서 Bob(Roo-Cline)을 엽니다")
         print(f"     2. 다음 파일의 내용을 Bob에게 전달합니다:")
         print(f"        {prompt_file.relative_to(ROOT)}")
@@ -276,12 +276,12 @@ class StepExecutor:
         index = self._read_json(self._index_file)
         for s in reversed(index["steps"]):
             if s["status"] == "error":
-                print(f"\n  ✗ Step {s['step']} ({s['name']}) failed.")
+                print(f"\n  [X] Step {s['step']} ({s['name']}) failed.")
                 print(f"  Error: {s.get('error_message', 'unknown')}")
                 print(f"  Fix and reset status to 'pending' to retry.")
                 sys.exit(1)
             if s["status"] == "blocked":
-                print(f"\n  ⏸ Step {s['step']} ({s['name']}) blocked.")
+                print(f"\n  [BLOCKED] Step {s['step']} ({s['name']}) blocked.")
                 print(f"  Reason: {s.get('blocked_reason', 'unknown')}")
                 print(f"  Resolve and reset status to 'pending' to retry.")
                 sys.exit(2)
@@ -325,7 +325,7 @@ class StepExecutor:
                         s["completed_at"] = ts
                 self._write_json(self._index_file, index)
                 self._commit_step(step_num, step_name)
-                print(f"  ✓ Step {step_num}: {step_name} [{elapsed}s]")
+                print(f"  [OK] Step {step_num}: {step_name} [{elapsed}s]")
                 return True
 
             if status == "blocked":
@@ -334,7 +334,7 @@ class StepExecutor:
                         s["blocked_at"] = ts
                 self._write_json(self._index_file, index)
                 reason = next((s.get("blocked_reason", "") for s in index["steps"] if s["step"] == step_num), "")
-                print(f"  ⏸ Step {step_num}: {step_name} blocked [{elapsed}s]")
+                print(f"  [BLOCKED] Step {step_num}: {step_name} blocked [{elapsed}s]")
                 print(f"    Reason: {reason}")
                 self._update_top_index("blocked")
                 sys.exit(2)
@@ -351,7 +351,7 @@ class StepExecutor:
                         s.pop("error_message", None)
                 self._write_json(self._index_file, index)
                 prev_error = err_msg
-                print(f"  ↻ Step {step_num}: retry {attempt}/{self.MAX_RETRIES} — {err_msg}")
+                print(f"  [RETRY] Step {step_num}: retry {attempt}/{self.MAX_RETRIES} — {err_msg}")
             else:
                 for s in index["steps"]:
                     if s["step"] == step_num:
@@ -360,7 +360,7 @@ class StepExecutor:
                         s["failed_at"] = ts
                 self._write_json(self._index_file, index)
                 self._commit_step(step_num, step_name)
-                print(f"  ✗ Step {step_num}: {step_name} failed after {self.MAX_RETRIES} attempts [{elapsed}s]")
+                print(f"  [X] Step {step_num}: {step_name} failed after {self.MAX_RETRIES} attempts [{elapsed}s]")
                 print(f"    Error: {err_msg}")
                 self._update_top_index("error")
                 sys.exit(1)
@@ -395,7 +395,7 @@ class StepExecutor:
             msg = f"chore({self._phase_name}): mark phase completed"
             r = self._run_git("commit", "-m", msg)
             if r.returncode == 0:
-                print(f"  ✓ {msg}")
+                print(f"  [OK] {msg}")
 
         if self._auto_push:
             branch = f"feat-{self._phase_name}"
@@ -403,7 +403,7 @@ class StepExecutor:
             if r.returncode != 0:
                 print(f"\n  ERROR: git push 실패: {r.stderr.strip()}")
                 sys.exit(1)
-            print(f"  ✓ Pushed to origin/{branch}")
+            print(f"  [OK] Pushed to origin/{branch}")
 
         print(f"\n{'='*60}")
         print(f"  Phase '{self._phase_name}' completed!")
