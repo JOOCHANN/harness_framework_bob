@@ -1,0 +1,31 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# Bob (Roo-Cline) generated files
+.roo/cache/
+.roo/logs/
+
+# phase execution outputs
+phases/**/phase*-output.json
+phases/**/step*-output.json
+phases/**/step*-prompt.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
