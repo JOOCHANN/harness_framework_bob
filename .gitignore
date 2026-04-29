@@ -1,31 +1,26 @@
-node_modules/
-.next/
-out/
-next-env.d.ts
-tsconfig.tsbuildinfo
+# OS / 편집기
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+.vscode/settings.json
+.idea/
 
-# Bob (Roo-Cline) generated files
+# 환경 변수 (절대 커밋 금지)
+.env
+.env.local
+.env.*.local
+
+# 로그 / 임시
+*.log
+.cache/
+
+# Bob (Roo-Cline) 캐시
 .roo/cache/
 .roo/logs/
 
-# phase execution outputs
+# Phase 실행 결과물 (Bob 이 자동 생성하는 임시 출력)
 phases/**/phase*-output.json
 phases/**/step*-output.json
 phases/**/step*-prompt.md
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-ENV/
-
-# IDE
-.vscode/settings.json
-.idea/
-*.swp
-*.swo
-*~

@@ -1,92 +1,61 @@
 # Bob 하네스 프레임워크
 
-Bob(Roo-Cline)과 함께 프로젝트를 체계적으로 개발하는 프레임워크입니다.
+IBM Code Assistant **Bob (Roo-Cline)** 과 함께 SDLC (계획 → 설계 → 구현 → 테스트 → 배포) 를 단계별로 진행하기 위한 초기 사용자용 자산입니다.
 
-> **Bob에게**: 먼저 [AGENTS.md](AGENTS.md)를 읽어주세요.
+> **Bob 에게**: 먼저 [AGENTS.md](AGENTS.md) 만 읽으세요. 다른 파일은 작업이 시작될 때 그때 읽습니다.
 
-## 🎯 핵심 아이디어
+---
 
-프로젝트를 **Phase**(큰 기능 단위) → **Step**(작은 작업)으로 나누고, Bob이 각 step을 순차적으로 실행합니다.
-
-## ⚡ 1분 시작
+## 동작 원리
 
 ```
-1. docs/ 파일들을 프로젝트에 맞게 작성
-2. Bob에게 요청: "docs/ 읽고 phases/0-mvp/ 계획 작성해줘"
-3. Bob에게 요청: "phases/0-mvp/step0.md 읽고 작업해줘"
+[항상 로드]    AGENTS.md          ← 작업 → 파일 라우팅 표
+                  │
+[필요할 때만]  ├─ "Phase 설계"  → docs/WORKFLOW.md, PRD, ARCHITECTURE, ADR
+               ├─ "step 진행"   → step{N}.md, RULES.md
+               ├─ "테스트"      → docs/TESTING.md
+               ├─ "배포"        → docs/DEPLOY.md
+               └─ "UI"          → docs/UI_GUIDE.md
 ```
 
-끝! 이후 step1, step2... 순서대로 진행하면 됩니다.
+AGENTS.md 한 파일에 모든 컨텍스트를 넣으면 토큰을 낭비합니다. 작업 종류에 따라 필요한 docs/ 만 lazy-load 하는 구조입니다.
 
-## 📁 구조
+---
+
+## 핵심 컨셉
+
+프로젝트를 **Phase**(큰 기능 단위) → **Step**(30분~2시간 작업) 으로 나누고, Bob 이 step 을 순서대로 실행하며 `phases/{N}-{name}/index.json` 에 상태를 갱신합니다.
+
+---
+
+## 폴더 구조
 
 ```
 .
+├── AGENTS.md                # Bob 진입점 (라우터)
 ├── docs/
-│   ├── PRD.md              # 무엇을 만들지
-│   ├── ARCHITECTURE.md     # 어떻게 만들지
-│   ├── ADR.md              # 어떤 기술 쓸지
-│   ├── UI_GUIDE.md         # 디자인 가이드
-│   ├── RULES.md            # 프로젝트 규칙
-│   └── WORKFLOW.md         # Bob 워크플로우 가이드
-├── phases/                 # Bob이 생성
-│   └── 0-mvp/
-│       ├── index.json      # step 목록 + 상태
-│       ├── step0.md        # 각 step 작업 내용
-│       ├── step1.md
-│       └── ...
-└── AGENTS.md               # Bob용 핵심 규칙
+│   ├── PRD.md               # 무엇을 만들지
+│   ├── ARCHITECTURE.md      # 어떻게 만들지
+│   ├── ADR.md               # 어떤 기술/설계 결정
+│   ├── RULES.md             # CRITICAL 규칙
+│   ├── WORKFLOW.md          # Phase/Step 절차
+│   ├── TESTING.md           # 테스트 전략
+│   ├── DEPLOY.md            # 배포 / 릴리즈
+│   └── UI_GUIDE.md          # (선택) UI 프로젝트만
+└── phases/                  # Bob 이 생성 (gitignore 가능)
+    └── {N}-{name}/
+        ├── index.json
+        └── step{N}.md
 ```
 
-## 💬 Bob과 대화하기
+---
 
-### Phase 계획 만들기
+## 5줄 시작 가이드
+
 ```
-Bob, 다음 파일들을 읽어줘:
-- AGENTS.md
-- docs/RULES.md
-- docs/PRD.md
-- docs/ARCHITECTURE.md
-- docs/ADR.md
-- docs/WORKFLOW.md
-
-그리고 MVP를 위한 phase 계획을 phases/0-mvp/에 작성해줘.
+1. docs/PRD.md, ARCHITECTURE.md, ADR.md, RULES.md 를 프로젝트에 맞게 작성
+2. (해당 시) TESTING.md, DEPLOY.md 도 채움
+3. Bob 에게: "AGENTS.md 읽고 phases/0-mvp/ 계획 작성해줘"
+4. "phases/0-mvp/step0.md 진행해줘" → 완료되면 "다음 step" 반복
+5. 에러 시: "phases/0-mvp/index.json 의 error_message 보고 수정해줘"
 ```
-
-### Step 실행하기
-```
-Bob, phases/0-mvp/step0.md를 읽고 작업해줘.
-완료되면 phases/0-mvp/index.json의 status를 업데이트해줘.
-```
-
-### 에러 발생 시
-```
-Bob, step 2가 실패했어. 
-phases/0-mvp/index.json 확인하고 error_message 보고 수정해줘.
-```
-
-## 🎓 핵심 규칙
-
-1. **한 번에 하나씩**: Step을 순서대로 진행
-2. **상태 업데이트**: 각 step 완료 시 index.json 업데이트 필수
-3. **문서 우선**: docs/ 파일들을 먼저 작성하고 시작
-4. **Bob에게 맡기기**: Phase 나누기, Step 설계는 Bob이 더 잘함
-
-## 📚 더 알아보기
-
-- [Bob 워크플로우 가이드](docs/WORKFLOW.md) - Bob이 읽을 상세 가이드
-- [빠른 시작 가이드](QUICKSTART.md) - 더 자세한 튜토리얼
-
-## ❓ FAQ
-
-**Q: Phase는 몇 개로 나눠야 하나요?**  
-A: Bob에게 물어보세요. PRD 읽고 적절히 나눠줍니다.
-
-**Q: Step이 너무 크면?**  
-A: Bob에게 "이 step을 2개로 나눠줘"라고 요청하세요.
-
-**Q: 중간에 요구사항이 바뀌면?**
-A: docs/PRD.md 수정하고 Bob에게 "docs/PRD.md 변경됐어, phase 계획 다시 검토해줘"
-
-**Q: 여러 Phase 동시 진행?**  
-A: 가능하지만 비추천. 한 번에 하나씩이 명확합니다.
